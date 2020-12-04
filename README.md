@@ -155,7 +155,7 @@ TEST SUITE: None
 **✅ Step 1h: Install a k8ssandra cluster**
 
 ```
-helm install k8ssandra-cluster-a k8ssandra/k8ssandra-cluster --set ingress.traefik.enabled=true --set ingress.traefik.repair.host=repair.${ADDRESS} --set ingress.traefik.monitoring.grafana.host=grafana.${ADDRESS} --set ingress.traefik.monitoring.prometheus.host=prometheus.${ADDRESS}
+helm install demo k8ssandra/k8ssandra-cluster -f demo-values.yaml
 ```
 
 >*📃output*
@@ -231,21 +231,7 @@ Cassandra Node Metrics
 
 ## 2. Working with Data
 
-**✅ Step 2a: Add Cassandra password to manifest **
-
-Make sure the Cassandra Operator is initialized by trying to extract the password. If this command returns an error, wait a few seconds and try it again until you see the random password.
-
-```
-kubectl get secret k8ssandra-superuser -o yaml | grep password | cut -d " " -f4 | base64 -d
-```
-
-Add the Cassandra password to the PetClinic manifest by running the following sed script.
-
-```
-sed -i "s/asdfadsfasdfdasdfds/$(kubectl get secret k8ssandra-superuser -o yaml | grep password | cut -d " " -f4 | base64 -d)/g" petclinic.yaml
-```
-
-**✅ Step 2b: Deploy the PetClinic app by applying the manifest.**
+**✅ Step 2a: Deploy the PetClinic app by applying the manifest.**
 
 ```
 kubectl apply -f petclinic.yaml
@@ -285,7 +271,7 @@ prometheus-k8ssandra-cluster-a-prometheus-k8ssandra-0             2/2     Runnin
 traefik-7877ff76c9-rcm9n                                          1/1     Running     0          27m                                        
 ```
 
-**✅ Step 2c: Using PetClinic**
+**✅ Step 2b: Using PetClinic**
 
 Navigate to the petclinic link in your cloud instance page to interact with the pet clinic app.  If you have done everything correctly you should see the following.
 
@@ -333,7 +319,7 @@ This is the current number of cassandra nodes.  Next, we are going to scale up t
 While there are a few ways to make this change with Helm, we will use a single line command that doesn't require any edits to files. 
 
 ```
-helm upgrade k8ssandra-cluster-a k8ssandra/k8ssandra-cluster --set size=3 --set ingress.traefik.enabled=true --set ingress.traefik.repair.host=repair.${ADDRESS}  --set ingress.traefik.monitoring.grafana.host=grafana.${ADDRESS}  --set ingress.traefik.monitoring.prometheus.host=prometheus.${ADDRESS}
+helm upgrade k8ssandra-cluster-a k8ssandra/k8ssandra-cluster --set size=3 -f demo-values.yaml
 ```
 
 Check the size again, it should be `size: 3` now
@@ -348,7 +334,7 @@ Historically, one of the most difficult operations with Cassandra has been to sc
 With K8ssandra's dynamic elasticity, it is now just as easy as scaling up.  Let's try it!
 
 ```
-helm upgrade k8ssandra-cluster-a k8ssandra/k8ssandra-cluster --set size=1 --set ingress.traefik.enabled=true --set ingress.traefik.repair.host=repair.${ADDRESS}  --set ingress.traefik.monitoring.grafana.host=grafana.${ADDRESS}  --set ingress.traefik.monitoring.prometheus.host=prometheus.${ADDRESS}
+helm upgrade k8ssandra-cluster-a k8ssandra/k8ssandra-cluster --set size=1 -f demo-values.yaml
 ```
 
 Check the size again, it should be back to `size: 1` now.
